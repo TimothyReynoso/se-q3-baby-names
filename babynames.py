@@ -1,4 +1,9 @@
-#!/usr/bin/env python3
+import sys
+import re
+import argparse
+
+
+# /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # BabyNames python coding exercise.
@@ -6,6 +11,7 @@
 # Copyright 2010 Google Inc.
 # Licensed under the Apache License, Version 2.0
 # http://www.apache.org/licenses/LICENSE-2.0
+__author__ = "Timothy Reynoso with help from Howard"
 
 """
 Define the extract_names() function below and change main()
@@ -31,10 +37,6 @@ Suggested milestones for incremental development:
  - Fix main() to use the extracted_names list
 """
 
-import sys
-import re
-import argparse
-
 
 def extract_names(filename):
     """
@@ -45,6 +47,23 @@ def extract_names(filename):
     """
     names = []
     # +++your code here+++
+    with open(filename) as file:
+        raw_data = file.read()
+    year = re.search(r'Popularity\sin\s(\d\d\d\d)', raw_data)
+    if year:
+        names.append(year.group(1))
+    names_dict = {}
+    name_and_rank = re.findall(
+        r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>', raw_data)
+    for i in range(len(name_and_rank)):
+        if name_and_rank[i][2] not in names_dict.keys():
+            names_dict.update({name_and_rank[i][2]: name_and_rank[i][0]})
+            # print(name_and_rank[i][2], name_and_rank[i][0])
+        if name_and_rank[i][1] not in names_dict.keys():
+            names_dict.update({name_and_rank[i][1]: name_and_rank[i][0]})
+    updated_data = sorted(names_dict.items())
+    for items in updated_data:
+        names.append(f"{items[0]} {items[1]}")
     return names
 
 
@@ -83,6 +102,15 @@ def main(args):
     # or to write the list to a summary file (e.g. `baby1990.html.summary`).
 
     # +++your code here+++
+    for file in file_list:
+        file_name = f"{file}.summary"
+        raw_result = '\n'.join(extract_names(file))
+        # = '\n'.join(mylist)
+        if create_summary:
+            with open(file_name, "w+") as file:
+                file.write(raw_result)
+
+        print(raw_result)
 
 
 if __name__ == '__main__':
